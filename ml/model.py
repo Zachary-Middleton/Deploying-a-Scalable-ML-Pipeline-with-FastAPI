@@ -1,6 +1,13 @@
 import pickle
 from sklearn.metrics import fbeta_score, precision_score, recall_score
 from ml.data import process_data
+from sklearn.linear_model import LogisticRegression
+from sklearn.base import BaseEstimator
+import numpy as np
+from sklearn.metrics import precision_score, recall_score, fbeta_score
+from sklearn.preprocessing import OneHotEncoder, LabelBinarizer
+from sklearn.base import BaseEstimator
+from typing import List, Union
 # TODO: add necessary import
 
 # Optional: implement hyperparameter tuning.
@@ -20,6 +27,9 @@ def train_model(X_train, y_train):
         Trained machine learning model.
     """
     # TODO: implement the function
+    model = LogisticRegression(random_state=42, max_iter=5000)
+    model.fit(X_train, y_train)
+    return model
     pass
 
 
@@ -60,6 +70,9 @@ def inference(model, X):
         Predictions from the model.
     """
     # TODO: implement the function
+    predictions = model.predict(X)
+
+    return predictions
     pass
 
 def save_model(model, path):
@@ -73,11 +86,18 @@ def save_model(model, path):
         Path to save pickle file.
     """
     # TODO: implement the function
+    with open(path, 'wb') as file:
+        # Use pickle.dump to serialize the model and save it to the file
+        pickle.dump(model, file)
     pass
 
 def load_model(path):
     """ Loads pickle file from `path` and returns it."""
     # TODO: implement the function
+    with open(path, 'rb') as file:
+        # Deserialize and return the object from the file
+        return pickle.load(file)
+
     pass
 
 
@@ -118,11 +138,16 @@ def performance_on_categorical_slice(
 
     """
     # TODO: implement the function
+    data_slice = data[data[column_name] == slice_value]
+
     X_slice, y_slice, _, _ = process_data(
-        # your code here
-        # for input data, use data in column given as "column_name", with the slice_value 
-        # use training = False
+            data_slice,
+            categorical_features=categorical_features,
+            label=label,
+            training=False,
+            encoder=encoder,
+            lb=lb
     )
-    preds = None # your code here to get prediction on X_slice using the inference function
+    preds = inference(model, X_slice) # your code here to get prediction on X_slice using the inference function
     precision, recall, fbeta = compute_model_metrics(y_slice, preds)
     return precision, recall, fbeta
