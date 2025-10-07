@@ -1,45 +1,62 @@
+import pandas as pd
 import pytest
-from sklearn.linear_model import LogisticRegression
-
-from ml.data import process_data
-from ml.model import train_model
 
 
-# TODO: add necessary import
 
-# TODO: implement the first test. Change the function name and input as needed
-def test_one():
-    """
-    # add description for the first test
-    """
-    # Your code here
+@pytest.fixture(scope="session")
+def data():
+
+    df = pd.read_csv('data/census.csv')
+    return df
+
     pass
 
+def test_age_range(data):
+    assert data['age'].min() >= 0, "Found negative age values."
+    assert data['age'].max() <= 110, "Found age values that are likely too high."
 
-# TODO: implement the second test. Change the function name and input as needed
-def test_train_model_type(sample_data):
-    """
-    Tests if the train_model function returns the expected algorithm type.
-    """
-    # Process data to get training inputs
-    X, y, _, _ = process_data(
-        sample_data,
-        categorical_features=["workclass", "education"],
-        label="salary",
-        training=True
-    )
+def is_numeric(series):
+    return pd.api.types.is_numeric_dtype(series)
 
-    # Train the model
-    model = train_model(X, y)
+def is_string_object(series):
+    return pd.api.types.is_object_dtype(series)
 
-    # Assert that the returned object is a LogisticRegression model
-    assert isinstance(model, LogisticRegression)
+def test_check_columns(data):
+
+    # Use a dictionary to map column names to their verification functions
+    required_columns = {
+        "age": is_numeric,
+        "workclass": is_string_object,
+        "fnlgt": is_numeric,
+        "education": is_string_object,
+        "education-num": is_numeric,
+        "marital-status": is_string_object,
+        "occupation": is_string_object,
+        "relationship": is_string_object,
+        "race": is_string_object,
+        "sex": is_string_object,
+        "capital-gain": is_numeric,
+        "capital-loss": is_numeric,
+        "hours-per-week": is_numeric,
+        "native-country": is_string_object,
+        "salary": is_string_object
+    }
+
+    # 1. Check if all required columns are present
+    assert set(data.columns.values).issuperset(set(required_columns.keys()))
+
+    # 2. Iterate over the dictionary's items to check each column's format
+    for col_name, format_verification_funct in required_columns.items():
+        assert format_verification_funct(
+            data[col_name]), f"Column '{col_name}' failed data format test '{format_verification_funct.__name__}'"
 
 
 # TODO: implement the third test. Change the function name and input as needed
-def test_three():
+def test_no_null_values(data):
     """
-    # add description for the third test
+    Tests that there are no missing (null/NaN) values in the DataFrame.
     """
-    # Your code here
+    # assert that the total number of null values in the entire dataframe is 0
+    assert data.isnull().sum().sum() == 0, "Found null values in the dataset."
+
     pass
