@@ -3,7 +3,7 @@
 For additional information see the Model Card paper: https://arxiv.org/pdf/1810.03993.pdf
 
 ## Model Details
-The model that was used was a linear regression model. It was trained on census data to whether income is >50k per year based on census data.
+The model that was used was a logistical regression model. It was trained on census data to whether income is >50k per year based on census data. This model was chosen because the dataset contains multiple variables. 
 
 ## Training Data
 The training data was spit from the main data set. The proportion that was used for training was 80%
